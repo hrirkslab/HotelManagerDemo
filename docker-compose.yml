@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  springboot-be:
+    image: hotelmanager
+    build:
+      context: ./hotelmanager
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-angular-network
+    environment:
+      SPRING_PROFILES_ACTIVE: 'test-profile'
+      # DEBUG: 'true'
+
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=hotelmanager_db'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=testuser'
+    ports:
+      - '5432:5432'
+    networks:
+      - spring-angular-network
+
+  hotelmanager-fe:
+    image: hotelmanager-fe
+    build:
+      context: ./hotelmanager-FE
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - spring-angular-network
+    depends_on:
+      - springboot-be
+
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - spring-angular-network
+    depends_on:
+      - postgres
+
+networks:
+  spring-angular-network:
+    driver: bridge
