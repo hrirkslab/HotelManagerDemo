@@ -1,5 +1,20 @@
-version: '3.8'
+version: "3.8"
 services:
+  frontend:
+    build:
+      context: ./hotelmanager_frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8085:80"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./hotelmanager_frontend/dist:/app
+    networks:
+      - spring-angular-network
+    depends_on:
+      - springboot-be
+
   springboot-be:
     image: hotelmanager
     build:
@@ -23,27 +38,14 @@ services:
       - '5432:5432'
     networks:
       - spring-angular-network
-
-  hotelmanager-fe:
-    image: hotelmanager-fe
-    build:
-      context: ./hotelmanager-FE
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    networks:
-      - spring-angular-network
-    depends_on:
-      - springboot-be
-
   adminer:
-    image: adminer
-    ports:
-      - "8081:8080"
-    networks:
-      - spring-angular-network
-    depends_on:
-      - postgres
+      image: adminer
+      ports:
+        - "8081:8080"
+      networks:
+        - spring-angular-network
+      depends_on:
+        - postgres
 
 networks:
   spring-angular-network:
