@@ -22,6 +22,8 @@ public class Hotelzimmer {
 
     private boolean minibar; 
 
+    private boolean isAvailable;
+
     // Constructors, getters, and setters
     public Hotelzimmer() {
     }
@@ -54,5 +56,13 @@ public class Hotelzimmer {
 
     public void setMinibar(boolean minibar) {
         this.minibar = minibar;
+    }
+
+    public boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 }

@@ -16,4 +16,6 @@ public interface HotelzimmerRepository extends JpaRepository<Hotelzimmer, Intege
     List<Hotelzimmer> findByMinibarFalse();
 
     List<Hotelzimmer> findByZimmergroesse(Hotelzimmer.Zimmergroesse zimmergroesse);
+
+    List<Hotelzimmer> findByIsAvailable(boolean isAvailable);
 }

@@ -19,11 +19,30 @@ public class HotelmanagerApplication {
 	@Bean
     public CommandLineRunner demo(HotelzimmerRepository repository) {
         return (args) -> {
-            Hotelzimmer newRoom = new Hotelzimmer();
-            newRoom.setZimmerNummer(101);
-            newRoom.setZimmergroesse(Hotelzimmer.Zimmergroesse.EINZELZIMMER);
-            newRoom.setMinibar(false);
-            repository.save(newRoom);
+            
+            // Eines besitzt eine Minibar und ist ein Doppelzimmer
+            Hotelzimmer doubleRoomWithMinibar = new Hotelzimmer();
+            doubleRoomWithMinibar.setZimmerNummer(101); 
+            doubleRoomWithMinibar.setZimmergroesse(Hotelzimmer.Zimmergroesse.DOPPELZIMMER);
+            doubleRoomWithMinibar.setMinibar(true);
+            doubleRoomWithMinibar.setIsAvailable(false);
+            repository.save(doubleRoomWithMinibar);
+
+            // Eines besitzt eine Minibar und ist ein Einzelzimmer
+            Hotelzimmer singleRoomWithMinibar = new Hotelzimmer();
+            singleRoomWithMinibar.setZimmerNummer(102); 
+            singleRoomWithMinibar.setZimmergroesse(Hotelzimmer.Zimmergroesse.EINZELZIMMER);
+            singleRoomWithMinibar.setMinibar(true);
+            singleRoomWithMinibar.setIsAvailable(true);
+            repository.save(singleRoomWithMinibar);
+
+            // Eines besitzt keine Minibar und ist eine Suite
+            Hotelzimmer suiteWithoutMinibar = new Hotelzimmer();
+            suiteWithoutMinibar.setZimmerNummer(103);
+            suiteWithoutMinibar.setZimmergroesse(Hotelzimmer.Zimmergroesse.SUITE);
+            suiteWithoutMinibar.setMinibar(false);
+            suiteWithoutMinibar.setIsAvailable(true);
+            repository.save(suiteWithoutMinibar);
         };
     }
 
