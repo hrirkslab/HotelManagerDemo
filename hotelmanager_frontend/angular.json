@@ -25,6 +25,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.css"
             ],
@@ -51,6 +52,14 @@
               ],
               "outputHashing": "all"
             },
+            "docker": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.docker.ts"
+                }
+              ]
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -64,6 +73,9 @@
           "configurations": {
             "production": {
               "buildTarget": "hotelmanager_frontend:build:production"
+            },
+            "docker": {
+              "buildTarget": "hotelmanager_frontend:build:docker"
             },
             "development": {
               "buildTarget": "hotelmanager_frontend:build:development"

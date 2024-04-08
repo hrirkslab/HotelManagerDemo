@@ -1,8 +1,10 @@
 
-
 <div class="container">
+        <h1>Willkommen bei <b>eXXellent Nights!</b></h1>
+
+<!-- Available Rooms -->
     <div class="room-list">
-        <h2>Hotelzimmer List | Gesamtzahl der vorhandenen Zimmer</h2>
+        <h2>Verfügbare Hotelzimmer Liste | Gesamtzahl der verfügbare Zimmer</h2>
         <table class="table">
             <thead>
             <tr>
@@ -13,7 +15,29 @@
             </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let hotelzimmer of hotelzimmerList">
+                <tr *ngFor="let hotelzimmer of availablezimmerList" (click)="open(content, hotelzimmer)" class="clickable-row">
+                    <td>{{hotelzimmer.zimmerNummer}}</td>
+                    <td>{{hotelzimmer.zimmergroesse}}</td>
+                    <td>{{hotelzimmer.minibar ? 'Yes' : 'No'}}</td>
+                    <td>{{hotelzimmer.isAvailable ? 'Yes' : 'No'}}</td>
+                    </tr>
+            </tbody>
+        </table>
+    <div>   
+        <!-- Total Rooms --> 
+    <div class="room-list">
+        <h2>Hotelzimmer Liste | Gesamtzahl der vorhandenen Zimmer</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Zimmer Nummer</th>
+                <th>Zimmer Größe</th>
+                <th>Minibar</th>
+                <th>Is Available</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let hotelzimmer of hotelzimmerList" (click)="open(content, hotelzimmer)" class="clickable-row">
                     <td>{{hotelzimmer.zimmerNummer}}</td>
                     <td>{{hotelzimmer.zimmergroesse}}</td>
                     <td>{{hotelzimmer.minibar ? 'Yes' : 'No'}}</td>
@@ -22,6 +46,27 @@
             </tbody>
         </table>
   <div>    
+
 </div>
+
+<!-- The modal -->
+<ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Room Details</h4>
+    </div>
+    <div class="modal-body">
+      <p>Zimmer Nummer: {{selectedRoom.zimmerNummer}}</p>
+      <p>Zimmergrösse: {{selectedRoom.zimmergroesse}}</p>
+      <p>Minibar: {{selectedRoom.minibar ? 'Yes' : 'No'}}</p>
+      <p>Available: {{selectedRoom.isAvailable ? 'Yes' : 'No'}}</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" 
+        (click)="bookHotelzimmer(selectedRoom.zimmerNummer)" 
+        [disabled]="!selectedRoom.isAvailable">Book</button>
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Close click')">Close</button>
+    </div>
+</ng-template>
+
 
 <router-outlet />

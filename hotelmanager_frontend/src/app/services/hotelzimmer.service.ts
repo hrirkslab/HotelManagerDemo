@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
+import { environment } from '../../environments/environment.docker';
 
 @Injectable({
-  providedIn: 'root' // Ensures that the service is available globally
+  providedIn: 'root'
 })
 export class HotelzimmerService {
-    private apiURL = 'http://localhost:8080/api/hotelzimmer';
+    private apiURL = environment.apiURL;;
 
     httpOptions = {
       headers: new HttpHeaders({
@@ -36,6 +37,11 @@ export class HotelzimmerService {
           catchError(this.handleError)
         );
     }
+
+    updateHotelzimmerAvailability(id: number, isAvailable: boolean): Observable<any> {
+        return this.http.patch(`${this.apiURL}/${id}`, { isAvailable: isAvailable });
+      }
+      
   
     private handleError(error: any) {
       console.error('An error occurred:', error.error.message);
@@ -43,7 +49,9 @@ export class HotelzimmerService {
     }
 
   // Filter hotel rooms by availability
-  filterHotelzimmerByAvailability(isAvailable: boolean): Observable<any> {
-    return this.http.get(`${this.apiURL}/filter`, { params: { isAvailable } });
-  }
+  filterHotelzimmerByAvailability(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiURL).pipe(
+      map((response: any[]) => response.filter(zimmer => zimmer.isAvailable))
+    );
+    }
 }
