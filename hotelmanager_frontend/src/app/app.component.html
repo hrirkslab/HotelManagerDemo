@@ -52,21 +52,51 @@
 <!-- The modal -->
 <ng-template #content let-modal>
     <div class="modal-header">
-      <h4 class="modal-title">Room Details</h4>
+      <h4 class="modal-title">Zimmer Details</h4>
+      <!-- Edit button -->
+      <button type="button" class="btn btn-secondary position-absolute end-0 me-2" (click)="editHotelzimmer(selectedRoom)">Edit</button>
     </div>
-    <div class="modal-body">
+    
+    <div *ngIf="!isEditMode" class="modal-body">
+      <!-- Non-edit mode: Display room details -->
       <p>Zimmer Nummer: {{selectedRoom.zimmerNummer}}</p>
-      <p>Zimmergrösse: {{selectedRoom.zimmergroesse}}</p>
-      <p>Minibar: {{selectedRoom.minibar ? 'Yes' : 'No'}}</p>
-      <p>Available: {{selectedRoom.isAvailable ? 'Yes' : 'No'}}</p>
+      <p>Zimmergröße: {{selectedRoom.zimmergroesse}}</p>
+      <p>Minibar: {{selectedRoom.minibar ? 'Ja' : 'Nein'}}</p>
+      <p>Verfügbar: {{selectedRoom.isAvailable ? 'Ja' : 'Nein'}}</p>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-primary" 
-        (click)="bookHotelzimmer(selectedRoom.zimmerNummer)" 
-        [disabled]="!selectedRoom.isAvailable">Book</button>
+    <div *ngIf="showNotification" [@fade] class="notification">
+        {{ notificationMessage }}
+      </div> 
+    <form *ngIf="isEditMode" (ngSubmit)="submitEdit(selectedRoom.zimmerNummer)" class="modal-body">
+      <!-- Edit mode: Editable fields for room details -->
+      <div class="form-group mb-2">
+        <label for="zimmergroesse">Zimmergröße:</label>
+        <select class="form-control" id="zimmergroesse" [(ngModel)]="selectedRoom.zimmergroesse" name="zimmergroesse">
+            <option *ngFor="let option of zimmergroessenMapping" [ngValue]="option.key">
+              {{ option.value }}
+            </option>
+          </select>
+      </div>
+      <div class="form-group mb-2">
+        <label for="minibar">Minibar:</label>
+        <select class="form-control" id="minibar" [(ngModel)]="selectedRoom.minibar" name="minibar">
+          <option [ngValue]="true">Ja</option>
+          <option [ngValue]="false">Nein</option>
+        </select>
+      </div>
+      <!-- Submit and Cancel buttons for edit mode -->
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="showSuccessNotification('Änderung gespeichert!')">Änderungen speichern</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="isEditMode=false">Abbrechen</button>
+      </div>
+    </form>
+    
+    <!-- Book and Cancel buttons, displayed when not in edit mode -->
+    <div *ngIf="!isEditMode" class="modal-footer">
+      <button type="button" class="btn btn-success" *ngIf="selectedRoom.isAvailable" (click)="bookHotelzimmer(selectedRoom.zimmerNummer); showSuccessNotification('Erfolgreiche Reservierung!')">Book</button>
+      <button type="button" class="btn btn-warning" *ngIf="!selectedRoom.isAvailable" (click)="cancelHotelzimmer(selectedRoom.zimmerNummer); showSuccessNotification('Reservierung storniert!')">Cancel Booking</button>
       <button type="button" class="btn btn-outline-dark" (click)="modal.close('Close click')">Close</button>
-    </div>
-</ng-template>
-
-
+    </div>    
+  </ng-template>
+  
 <router-outlet />

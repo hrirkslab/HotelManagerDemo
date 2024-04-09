@@ -3,7 +3,12 @@ package com.exxeta.hotelmanager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.exxeta.hotelmanager.Hotelzimmer.Zimmergroesse;
+
+import jakarta.transaction.Transactional;
+
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HotelzimmerService {
@@ -33,6 +38,35 @@ public class HotelzimmerService {
 
         return hotelzimmerRepository.save(hotelzimmer);
     }
+
+    @Transactional
+    public Hotelzimmer updateHotelzimmerFields(Integer roomNumber, Map<String, Object> fields) {
+        Hotelzimmer hotelzimmer = hotelzimmerRepository.findByZimmerNummer(roomNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Hotelzimmer with room number " + roomNumber + " not found."));
+
+        fields.forEach((property, value) -> {
+            applyPatchUpdate(hotelzimmer, property, value);
+        });
+
+        return hotelzimmerRepository.save(hotelzimmer);
+    }
+
+    private void applyPatchUpdate(Hotelzimmer hotelzimmer, String property, Object value) {
+        switch (property) {
+            case "zimmergroesse":
+                hotelzimmer.setZimmergroesse(Zimmergroesse.valueOf((String) value));
+                break;
+            case "minibar":
+                hotelzimmer.setMinibar((Boolean) value);
+                break;
+            case "isAvailable":
+                hotelzimmer.setIsAvailable((Boolean) value);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown property: " + property);
+        }
+    }
+    
 
     public List<Hotelzimmer> filterHotelzimmer(Boolean hasMinibar) {
         if (hasMinibar != null) {

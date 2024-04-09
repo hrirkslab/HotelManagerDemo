@@ -1,10 +1,12 @@
 package com.exxeta.hotelmanager.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,6 +56,14 @@ public class HotelzimmerController {
         Hotelzimmer updatedHotelzimmer = hotelzimmerService.updateHotelzimmer(roomNumber, hotelzimmer);
         return ResponseEntity.ok(updatedHotelzimmer);
     }
+
+    @PatchMapping("/{roomNumber}")
+    public ResponseEntity<Hotelzimmer> updateHotelzimmerFields(@PathVariable Integer roomNumber,
+                                                               @RequestBody Map<String, Object> fields) {
+        Hotelzimmer updatedHotelzimmer = hotelzimmerService.updateHotelzimmerFields(roomNumber, fields);
+        return ResponseEntity.ok(updatedHotelzimmer);
+    }
+
 
     // Filter hotel rooms if available
     @GetMapping("/filter")
