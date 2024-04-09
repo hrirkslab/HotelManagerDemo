@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HotelzimmerService } from './services/hotelzimmer.service';
 import { CommonModule } from '@angular/common'
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Zimmergroesse } from './enums/zimmergroesse.enum';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalService } from './services/modal.service';
+
 
 @Component({
   selector: 'app-root',
@@ -23,14 +25,16 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
   ]
 })
 export class AppComponent {
+  [x: string]: any;
 
   title = 'Hotel Manager';
   hotelzimmerList: { zimmerNummer: number, zimmergroesse: string, minibar: boolean, isAvailable: boolean }[] = [];
   availablezimmerList: { zimmerNummer: number, zimmergroesse: string, minibar: boolean, isAvailable: boolean }[] = [];
   newHotelzimmer = { zimmerNummer: null, zimmergroesse: '', minibar: false, isAvailable: true };
-  selectedRoom: any = {}; 
+  selectedRoom: any = {};
+  newRoom: any = {};
   searchQuery: string = '';
-  bookingStatus: {[key: number]: string} = {};
+  bookingStatus: { [key: number]: string } = {};
   isEditMode: boolean = false;
 
   public Zimmergroesse = Zimmergroesse;
@@ -45,7 +49,7 @@ export class AppComponent {
   notificationMessage = '';
 
 
-  constructor(private hotelzimmerService: HotelzimmerService, private modalService: NgbModal) {}
+  constructor(private hotelzimmerService: HotelzimmerService, @Inject(ModalService) private modalService: ModalService, private modalServiceDialog: NgbModal) { }
 
   ngOnInit(): void {
     this.loadHotelzimmer();
@@ -64,57 +68,75 @@ export class AppComponent {
     });
   }
 
-  addRoom(): void {
-    this.hotelzimmerService.addHotelzimmer(this.newHotelzimmer).subscribe(() => {
-      this.loadHotelzimmer();
-      this.resetForm();
-    });
-  }
-
   /**
  * Updates the availability of a hotel room and handles UI updates.
  * 
  * @param zimmerNummer The room number to update.
  * @param isAvailable The new availability status for the room.
  */
-updateHotelzimmerAvailability(zimmerNummer: number, isAvailable: boolean) {
-  const action = isAvailable ? 'Canceled' : 'Booked';
-  
-  this.hotelzimmerService.updateHotelzimmerAvailability(zimmerNummer, isAvailable).subscribe({
-    next: () => {
-      this.bookingStatus[zimmerNummer] = action;
-      
-      if (this.selectedRoom && this.selectedRoom.zimmerNummer === zimmerNummer) {
-        this.selectedRoom.isAvailable = isAvailable;
-      }
-  
-      this.loadAvailableHotelzimmer();
-    },
-    error: (error) => {
-      console.error(`${action} failed:`, error);
-      this.bookingStatus[zimmerNummer] = `${action} failed`;
-    },
-    complete: () => console.log(`${action} process completed.`)
-  });
-}
+  updateHotelzimmerAvailability(zimmerNummer: number, isAvailable: boolean) {
+    const action = isAvailable ? 'Canceled' : 'Booked';
 
-bookHotelzimmer(zimmerNummer: number) {
-  this.updateHotelzimmerAvailability(zimmerNummer, false);
-}
+    this.hotelzimmerService.updateHotelzimmerAvailability(zimmerNummer, isAvailable).subscribe({
+      next: () => {
+        this.bookingStatus[zimmerNummer] = action;
 
-cancelHotelzimmer(zimmerNummer: number) {
-  this.updateHotelzimmerAvailability(zimmerNummer, true);
-}
-  
-  
-  updateRoom(): void {
-    if (this.selectedRoom) {
-      this.hotelzimmerService.updateHotelzimmer(this.selectedRoom.id, this.selectedRoom).subscribe(() => {
-        this.loadHotelzimmer();
-        this.resetSelection();
-      });
-    }
+        if (this.selectedRoom && this.selectedRoom.zimmerNummer === zimmerNummer) {
+          this.selectedRoom.isAvailable = isAvailable;
+        }
+
+        this.loadAvailableHotelzimmer();
+      },
+      error: (error) => {
+        console.error(`${action} failed:`, error);
+        this.bookingStatus[zimmerNummer] = `${action} failed`;
+      },
+      complete: () => console.log(`${action} process completed.`)
+    });
   }
+
+  bookHotelzimmer(zimmerNummer: number) {
+    this.updateHotelzimmerAvailability(zimmerNummer, false);
+  }
+
+  cancelHotelzimmer(zimmerNummer: number) {
+    this.updateHotelzimmerAvailability(zimmerNummer, true);
+  }
+
+  addNewHotelzimmer() {
+    if (!this.newRoom) return;
+    this.newRoom.isAvailable = true;
+    this.hotelzimmerService.addHotelzimmer(this.newRoom).subscribe({
+      next: (response) => {
+        this.newRoom = {}; 
+        this.availablezimmerList.push(response);      
+      },
+      error: (error) => {
+        console.error('Error adding room:', error);
+        this.showNotification = true;
+        this.notificationMessage = 'Fehler beim Hinzufügen des Zimmers!';
+      },
+      complete: () => {  
+        this.showSuccessNotification('Zimmer erfolgreich hinzugefügt!');
+        this.loadHotelzimmer();
+        this.loadAvailableHotelzimmer(); 
+      }
+    });
+  }
+
+  deleteRoom(roomId: number) {
+    this.hotelzimmerService.deleteHotelzimmer(roomId)
+      .subscribe(
+        () => {
+          this.hotelzimmerList = this.hotelzimmerList.filter(room => room.zimmerNummer !== roomId);
+        },
+        error => {
+          console.error('Error deleting room:', error);
+        }
+      );
+  }
+  
+  
 
   editHotelzimmer(hotelzimmer: any) {
     this.isEditMode = !this.isEditMode;
@@ -130,28 +152,21 @@ cancelHotelzimmer(zimmerNummer: number) {
       error: (error) => console.error('Update failed:', error)
     });
   }
-  
-  
-
-  resetForm(): void {
-    this.newHotelzimmer = { zimmerNummer: null, zimmergroesse: '', minibar: false, isAvailable: true };
-  }
-
-  resetSelection(): void {
-    this.selectedRoom = null;
-  }
-
-  selectRoom(room: any) {
-    // TODO : Implement logic to handle room selection 
-    this.selectedRoom = room;
-  }
 
   open(content: any, hotelzimmer: any) {
     this.selectedRoom = hotelzimmer;
-    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+    this.modalServiceDialog.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
     }, () => {
     });
+  }
 
+  openAddRoomDialog(addRoomContent: any) {
+    const modalRef = this.modalServiceDialog.open(addRoomContent);
+    modalRef.result.then((result) => {
+      console.log(result);
+    }, (reason) => {
+      console.log(reason);
+    });
   }
 
   showSuccessNotification(message: string) {

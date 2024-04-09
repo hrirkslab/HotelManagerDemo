@@ -83,4 +83,12 @@ public class HotelzimmerService {
     public List<Hotelzimmer> findAvailableRooms(boolean isAvailable) {
         return hotelzimmerRepository.findByIsAvailable(isAvailable);
     }
+
+    public void deleteHotelzimmer(Integer roomNumber) throws Exception {
+        if (!hotelzimmerRepository.existsById(roomNumber)) {
+            throw new Exception("Room not found.");
+        }
+        hotelzimmerRepository.deleteById(roomNumber);
+    }
+    
 }

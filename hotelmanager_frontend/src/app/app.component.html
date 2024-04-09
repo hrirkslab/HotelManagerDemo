@@ -1,7 +1,9 @@
 
 <div class="container">
         <h1>Willkommen bei <b>eXXellent Nights!</b></h1>
-
+        <div class="room-list">
+            <button (click)="openAddRoomDialog(addRoomContent)" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Add New Room</button>
+        </div>
 <!-- Available Rooms -->
     <div class="room-list">
         <h2>Verfügbare Hotelzimmer Liste | Gesamtzahl der verfügbare Zimmer</h2>
@@ -51,11 +53,15 @@
 
 <!-- The modal -->
 <ng-template #content let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title">Zimmer Details</h4>
-      <!-- Edit button -->
-      <button type="button" class="btn btn-secondary position-absolute end-0 me-2" (click)="editHotelzimmer(selectedRoom)">Edit</button>
-    </div>
+    <div class="modal-header bg-primary text-white stylish-header">
+        <h4 class="modal-title">Zimmer Details</h4>
+        <!-- Edit and Delete buttons -->
+        <div class="modal-header-actions">
+            <button type="button" class="btn btn-success" (click)="editHotelzimmer(selectedRoom.zimmerNummer)"><i class="fas fa-pencil-alt"></i></button>
+            <button type="button" class="btn btn-danger" (click)="deleteRoom(selectedRoom.zimmerNummer)"><i class="fas fa-trash-alt"></i></button>
+          </div>
+      </div>
+      
     
     <div *ngIf="!isEditMode" class="modal-body">
       <!-- Non-edit mode: Display room details -->
@@ -64,6 +70,7 @@
       <p>Minibar: {{selectedRoom.minibar ? 'Ja' : 'Nein'}}</p>
       <p>Verfügbar: {{selectedRoom.isAvailable ? 'Ja' : 'Nein'}}</p>
     </div>
+    
     <div *ngIf="showNotification" [@fade] class="notification">
         {{ notificationMessage }}
       </div> 
@@ -98,5 +105,43 @@
       <button type="button" class="btn btn-outline-dark" (click)="modal.close('Close click')">Close</button>
     </div>    
   </ng-template>
+  
+
+  <ng-template #addRoomContent>
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Neues Zimmer hinzufügen</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form #addRoomForm="ngForm" (ngSubmit)="addNewHotelzimmer()">
+            <div class="form-group">
+              <label for="zimmerNummer" class="form-label">Room Number</label>
+              <input type="text" id="zimmerNummer" class="form-control" [(ngModel)]="newRoom.zimmerNummer" name="zimmerNummer" required>
+            </div>
+            <div class="form-group">
+              <label for="zimmergroesse" class="form-label">Room Size</label>
+              <select id="zimmergroesse" class="form-control" [(ngModel)]="newRoom.zimmergroesse" name="zimmergroesse" required>
+                <option value="EINZELZIMMER">Single Room</option>
+                <option value="DOPPELZIMMER">Double Room</option>
+                <option value="SUITE">Suite</option>
+              </select>
+            </div>
+            <div class="form-check mb-3">
+              <input type="checkbox" id="minibar" class="form-check-input" [(ngModel)]="newRoom.minibar" name="minibar">
+              <label for="minibar" class="form-check-label">Minibar</label>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Add Room</button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  
+  
   
 <router-outlet />

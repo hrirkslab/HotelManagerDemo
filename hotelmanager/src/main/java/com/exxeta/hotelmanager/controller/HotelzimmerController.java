@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,26 +53,38 @@ public class HotelzimmerController {
     // Update a hotel room by its room number
     @PutMapping("/{roomNumber}")
     public ResponseEntity<Hotelzimmer> updateHotelzimmer(@PathVariable Integer roomNumber,
-                                                         @RequestBody Hotelzimmer hotelzimmer) {
+            @RequestBody Hotelzimmer hotelzimmer) {
         Hotelzimmer updatedHotelzimmer = hotelzimmerService.updateHotelzimmer(roomNumber, hotelzimmer);
         return ResponseEntity.ok(updatedHotelzimmer);
     }
 
     @PatchMapping("/{roomNumber}")
     public ResponseEntity<Hotelzimmer> updateHotelzimmerFields(@PathVariable Integer roomNumber,
-                                                               @RequestBody Map<String, Object> fields) {
+            @RequestBody Map<String, Object> fields) {
         Hotelzimmer updatedHotelzimmer = hotelzimmerService.updateHotelzimmerFields(roomNumber, fields);
         return ResponseEntity.ok(updatedHotelzimmer);
     }
 
-
     // Filter hotel rooms if available
     @GetMapping("/filter")
-    public ResponseEntity<List<Hotelzimmer>> filterHotelzimmerByAvailability(@RequestParam(required = false) Boolean isAvailable) {
+    public ResponseEntity<List<Hotelzimmer>> filterHotelzimmerByAvailability(
+            @RequestParam(required = false) Boolean isAvailable) {
         if (isAvailable == null) {
             isAvailable = true;
         }
         List<Hotelzimmer> filteredHotelzimmer = hotelzimmerService.findAvailableRooms(isAvailable);
         return ResponseEntity.ok(filteredHotelzimmer);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteHotelzimmer(@PathVariable Integer id) {
+        try {
+            hotelzimmerService.deleteHotelzimmer(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
