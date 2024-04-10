@@ -2,7 +2,7 @@
 <div class="container">
         <h1>Willkommen bei <b>eXXellent Nights!</b></h1>
         <div class="room-list">
-            <button (click)="openAddRoomDialog(addRoomContent)" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Add New Room</button>
+            <button (click)="openAddRoomDialog(addRoomContent)" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Neues Zimmer hinzufügen</button>
         </div>
 <!-- Available Rooms -->
     <div class="room-list">
@@ -59,6 +59,10 @@
         <div class="modal-header-actions">
             <button type="button" class="btn btn-success" (click)="editHotelzimmer(selectedRoom.zimmerNummer)"><i class="fas fa-pencil-alt"></i></button>
             <button type="button" class="btn btn-danger" (click)="deleteRoom(selectedRoom.zimmerNummer)"><i class="fas fa-trash-alt"></i></button>
+
+            <button type="button" class="btn btn-danger" (click)="openDeleteConfirmation(confirmDeleteModal, selectedRoom.zimmerNummer)">
+                <i class="fas fa-trash-alt"></i>
+            </button>
           </div>
       </div>
       
@@ -107,36 +111,56 @@
   </ng-template>
   
 
-  <ng-template #addRoomContent>
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Neues Zimmer hinzufügen</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <ng-template #addRoomContent let-modal>
+    <div class="modal-header bg-primary text-white">
+      <h4 class="modal-title">Neues Zimmer hinzufügen</h4>
+    </div>
+    <div class="modal-body">
+      <form #addRoomForm="ngForm" (ngSubmit)="addNewHotelzimmer()">
+        <div class="form-group">
+          <label for="zimmerNummer" class="form-label">Zimmernummer</label>
+          <input type="text" id="zimmerNummer" class="form-control" [(ngModel)]="newRoom.zimmerNummer" name="zimmerNummer" required>
         </div>
-        <div class="modal-body">
-          <form #addRoomForm="ngForm" (ngSubmit)="addNewHotelzimmer()">
-            <div class="form-group">
-              <label for="zimmerNummer" class="form-label">Room Number</label>
-              <input type="text" id="zimmerNummer" class="form-control" [(ngModel)]="newRoom.zimmerNummer" name="zimmerNummer" required>
-            </div>
-            <div class="form-group">
-              <label for="zimmergroesse" class="form-label">Room Size</label>
-              <select id="zimmergroesse" class="form-control" [(ngModel)]="newRoom.zimmergroesse" name="zimmergroesse" required>
-                <option value="EINZELZIMMER">Single Room</option>
-                <option value="DOPPELZIMMER">Double Room</option>
-                <option value="SUITE">Suite</option>
-              </select>
-            </div>
-            <div class="form-check mb-3">
-              <input type="checkbox" id="minibar" class="form-check-input" [(ngModel)]="newRoom.minibar" name="minibar">
-              <label for="minibar" class="form-check-label">Minibar</label>
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Add Room</button>
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </form>
+        <br>
+        <div class="form-group">
+          <label for="zimmergroesse" class="form-label">Zimmergröße</label>
+          <select id="zimmergroesse" class="form-control" [(ngModel)]="newRoom.zimmergroesse" name="zimmergroesse" required>
+            <option *ngFor="let size of zimmergroessenMapping" [value]="size.value">{{ size.value }}</option>
+          </select>
+        </div>
+        <br>
+        <div class="form-check">
+          <input type="checkbox" id="minibar" class="form-check-input" [(ngModel)]="newRoom.minibar" name="minibar">
+          <label for="minibar" class="form-check-label">Minibar</label>
+        </div>
+        <br>
+        <div *ngIf="showNotification" [@fade] class="notification">
+            {{ notificationMessage }}
+          </div> 
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Zimmer hinzufügen</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('Close click')">Close</button>
+        </div>
+      </form>
+    </div>
+  </ng-template>
+  
+<!-- Confirm Delete Modal -->
+<ng-template #confirmDeleteModal let-modal>
+    <div class="modal fade" id="confirmDeletionModal" tabindex="-1" aria-labelledby="confirmDeletionModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeletionModalLabel">Bestätigung erforderlich</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Sind Sie sicher, dass Sie dieses Zimmer löschen möchten?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-danger" (click)="deleteRoomAndCloseModal()">Löschen</button>
+          </div>
         </div>
       </div>
     </div>

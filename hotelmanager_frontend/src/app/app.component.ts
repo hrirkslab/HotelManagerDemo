@@ -49,7 +49,7 @@ export class AppComponent {
   notificationMessage = '';
 
 
-  constructor(private hotelzimmerService: HotelzimmerService, @Inject(ModalService) private modalService: ModalService, private modalServiceDialog: NgbModal) { }
+  constructor(private hotelzimmerService: HotelzimmerService, @Inject(ModalService) private modalService: ModalService, private modalServiceDialog: NgbModal, private modalDeleteService: NgbModal) { }
 
   ngOnInit(): void {
     this.loadHotelzimmer();
@@ -124,16 +124,27 @@ export class AppComponent {
     });
   }
 
+  openDeleteConfirmation(confirmDeleteModal: any, room: any) {
+    this.selectedRoom = room;
+    this.modalDeleteService.open(confirmDeleteModal, { centered: true });
+  }
+
+  deleteRoomAndCloseModal() {
+    this.deleteRoom(this.selectedRoom.zimmerNummer); 
+    this.modalDeleteService.dismissAll(); 
+  }
+  
+
   deleteRoom(roomId: number) {
     this.hotelzimmerService.deleteHotelzimmer(roomId)
-      .subscribe(
-        () => {
+      .subscribe({
+        next: (response) => {
           this.hotelzimmerList = this.hotelzimmerList.filter(room => room.zimmerNummer !== roomId);
         },
-        error => {
+        error: (error) => {
           console.error('Error deleting room:', error);
         }
-      );
+      });
   }
   
   
